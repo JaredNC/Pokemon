@@ -1,0 +1,182 @@
+/*****FILTER STYLES*****/
+#ownedcards
+{
+	border: 4px double #0F75BC;
+	padding: 10px;
+	border-radius: 5px;
+	position: absolute;
+	top: 10px;
+	left: 3.5%;
+	float: right;
+	width: 90%;
+	max-width: 90%;
+	height: 90%;
+	background: rgba(192, 192, 192, 0.5);
+	opacity: 50%;
+	display: none;
+	margin-top: 10px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	text-outline: 2px 2px #ff0000;
+	margin-left: 10px;
+}
+#contentcards
+{
+	height: 90%;
+	overflow: auto;
+}
+.ownedcard
+{
+	border: 1px dotted;
+	padding: 10px;
+	margin: 10px;
+	border-radius: 5px;
+}
+.ownedcard H1, .ownedcardfoil H1
+{
+	font-size: 24px;
+	font-weight: bold;
+}
+.ownedcardfoil
+{
+	border: 2px ridge;
+	padding: 10px;
+	margin: 10px;
+	border-radius: 5px;
+	border-color: #FFFF00;
+}
+IMG.foil1
+{
+	border: 4px ridge;
+	border-color: #FFFF00;
+}
+.tradelistinactive
+{
+	border: 1px dotted;
+	padding: 10px;
+	margin: 10px;
+	border-radius: 5px;
+	background: rgba(120, 0, 0, 0.4);
+}
+.tradelistactive
+{
+	border: 1px dotted;
+	padding: 10px;
+	margin: 10px;
+	border-radius: 5px;
+	background: rgba(34, 139, 34, 0.4);
+}
+.tcg_body
+{
+	border: 1px dotted;
+	padding: 10px;
+	margin: 10px;
+	border-radius: 5px;
+	background: #FFFFFF;
+	color: #000000;
+}
+#tcg_body
+{
+	border: 1px dotted;
+	padding: 10px;
+	margin: 10px;
+	border-radius: 5px;
+	background: #FFFFFF;
+	color: #000000;
+}
+TABLE.tablesorter
+{
+	font-size: 12px;
+	background-color: #4D4D4D;
+	width: 1024px;
+	border: 1px solid #000;
+}
+TABLE.tablesorter TH
+{
+	text-align: left;
+	padding: 5px;
+	background-color: #6E6E6E;
+}
+TABLE.tablesorter TD
+{
+	color: #FFF;
+	padding: 5px;
+}
+TABLE.tablesorter A
+{
+	color: #FFF;
+}
+TABLE.tablesorter .even
+{
+	background-color: #3D3D3D;
+}
+TABLE.tablesorter .odd
+{
+	background-color: #6E6E6E;
+}
+TABLE.tablesorter .header
+{
+	background-image: url(http://forums.novociv.org/cards/images/bg.png);
+	background-repeat: no-repeat;
+	border-left: 1px solid #FFF;
+	border-right: 1px solid #000;
+	border-top: 1px solid #FFF;
+	padding-left: 30px;
+	padding-top: 8px;
+	height: auto;
+}
+TABLE.tablesorter .headerSortUp
+{
+	background-image: url(http://forums.novociv.org/cards/images/asc.png);
+	background-repeat: no-repeat;
+}
+TABLE.tablesorter .headerSortDown
+{
+	background-image: url(http://forums.novociv.org/cards/images/desc.png);
+	background-repeat: no-repeat;
+}
+.deck_limit
+{
+	border: 1px dotted;
+	padding: 10px;
+	margin: 10px;
+	border-radius: 5px;
+	position: fixed;
+	bottom: 75px;
+	right: 25px;
+	float: right;
+	width: 125px;
+	background: rgba(192, 192, 192, 0.75);
+	z-index: 100;
+}
+#make_deck
+{
+	display: none;
+}
+.is_selected
+{
+	width: 15%;
+	height: auto;
+	display: inline-block;
+	border: 4px ridge;
+	border-color: #00FFFF;
+}
+.not_selected
+{
+	display: inline-block;
+	width: 15%;
+	height: auto;
+	border: 4px ridge;
+	border-color: transparent;
+}
+.not_selected IMG
+{
+	opacity: 0.75;
+}
+.checkboxdiv
+{
+	display: none;
+}
+img {
+  max-width: 100%;
+}
