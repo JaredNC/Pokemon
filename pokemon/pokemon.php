@@ -375,6 +375,16 @@ if(isset($_GET['do']) && $_GET['do'] == 'view' && isset($_GET['pokemon']) && $_G
 		<input type="hidden" name="pokemon" value="' . $pokemon . '" />
 		<br><input type="submit" value="Change Shiny Image" />
 		</form></div>';
+
+        $str .= '<div class=tradelistinactive><b>
+            Rules:<br>
+            *No larger than 600x600. (doesn\'t have to be a square)<br>
+            *URL must be at most 100 characters long (user imgur!)<br>
+            *The image MUST be of the actual pokemon. Don\'t do something like putting a charizard picture for a shiny pidgey.<br>
+            *No NSFW material.<br>
+            <br>
+            *If you abuse this feature your shiny will be "donated to science" at Frank\'s factory.
+        </b></div>';
     } else {
         $str .= 'That pokemon is not yours!<br><br>';
     }
