@@ -106,16 +106,44 @@ if(isset($_GET['do']) && $_GET['do'] == 'admit'){
 } else if(isset($_GET['do']) && $_GET['do'] == 'egg'){
     $str = '<div class="tcg_body"><h1><u>UNCLAIMED EGGS:</u></h1><br>';
     $str2 = '<div class="tcg_body"><h1><u>OWNED EGGS:</u></h1><br>';
+
     $result = $db->query_read("
-	    SELECT 
+	    SELECT
+	        MIN(poke_egg.egg_id) AS 'egg_id',
+	        MIN(poke_egg.monid) AS 'monid',
+	        COUNT(poke_egg.egg_id) AS 'count',
+	        poke_mon.monname AS 'name'
+	    FROM
+	        poke_egg
+        LEFT JOIN
+            poke_mon
+        ON
+            poke_egg.monid = poke_mon.monid
+	    WHERE 
+            poke_egg.ownerid = $userid
+            AND poke_egg.userid = 1675
+            AND poke_egg.hatch_date = 0
+        GROUP BY
+            poke_egg.monid");
+    while ($resultLoop = $db->fetch_array($result)) {
+        $name = $resultLoop['name'];
+        $egg_id = $resultLoop['egg_id'];
+        $monid = $resultLoop['monid'];
+        $count = $resultLoop['count'];
+        $str .= '<a href="/pokemon.php?section=pokemon&do=view&pokemon=' . $monid . '">' . $name . '</a> Egg. Owned: (' . $count . ') - 
+                    (<a href="/pokemon.php?section=daycare&do=transact&action=egg_take&egg=' . $egg_id . '">Claim this Egg for 50 pengos</a>) - 
+                    (<a href="/pokemon.php?section=daycare&do=transact&action=egg_break&egg=' . $egg_id . '">Break this Egg</a>)<br>';
+    }
+    $result2 = $db->query_read("
+	    SELECT
 	        poke_egg.egg_id,
 	        poke_egg.monid,
 	        poke_egg.userid,
 	        poke_egg.mom_id,
 	        poke_egg.steps,
 	        poke_mon.monname,
-	        poke_indv.nick
-	    FROM 
+	        poke_indv.nick 
+	    FROM
 	        poke_egg
         LEFT JOIN
             poke_mon
@@ -127,8 +155,9 @@ if(isset($_GET['do']) && $_GET['do'] == 'admit'){
             poke_egg.mom_id = poke_indv.indvid
 	    WHERE 
             poke_egg.ownerid = $userid
+            AND poke_egg.userid <> 1675
             AND poke_egg.hatch_date = 0");
-    while ($resultLoop = $db->fetch_array($result)) {
+    while ($resultLoop = $db->fetch_array($result2)) {
         if($resultLoop['steps'] < 50) {
             $egg_status = 1;
         } else if($resultLoop['steps'] < 100) {
@@ -150,11 +179,7 @@ if(isset($_GET['do']) && $_GET['do'] == 'admit'){
             $name = 'Unknown';
             $mom = 'Unknown';
         }
-        if($resultLoop['userid'] == 1675) {
-            $str .= '<a href="/pokemon.php?section=pokemon&do=view&pokemon=' . $monid . '">' . $name . '</a> Egg. Mother: ' . $mom . ' - 
-                    (<a href="/pokemon.php?section=daycare&do=transact&action=egg_take&egg=' . $egg_id . '">Claim this Egg for 50 pengos</a>) - 
-                    (<a href="/pokemon.php?section=daycare&do=transact&action=egg_break&egg=' . $egg_id . '">Break this Egg</a>)<br>';
-        } else if($egg_id == $equip) {
+        if($egg_id == $equip) {
             $str2 .= '<a href="/pokemon.php?section=pokemon&do=view&pokemon=' . $monid . '">' . $name . '</a> Egg. Mother: ' . $mom . ' - 
                     <b>Your Active Egg</b> <img alt="More Info!" class=more src="images/icons/icon1.png" onclick="moreinfo(' . $egg_status . ')" /><br>';
         } else {
