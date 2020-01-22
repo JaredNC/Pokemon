@@ -115,9 +115,24 @@ if(isset($_GET['do']) && $_GET['do'] == 'view' && isset($_GET['pokemon']) && $_G
 		} else {
 		    $momstr = '';
 		}
+		if($result["c_shiny"] == 1) {
+		    $shiny_link = $db->query_first("
+    		    SELECT
+    		        `link`
+                FROM
+                    `poke_shiny_link`
+                WHERE
+                    `indvid` = " . $pokemon . "
+                ORDER BY 
+                    linkid DESC");
+		    $link = ($shiny_link['link'] == '') ? 'pokemon/images/monimages/S600px-' . str_pad($result["c_monid"] , 3 , "0" , STR_PAD_LEFT) . $pokemonname . '.png' : $shiny_link['link'];
+            $img = '<img src="' . $link . '" />';
+        } else {
+            $img = '<img src="pokemon/images/monimages/600px-' . str_pad($result["c_monid"] , 3 , "0" , STR_PAD_LEFT) . $pokemonname . '.png" />';
+        }
 		$str .= '<h1 class="ownedcard2' . $shine . '">' . $title . '</h1>' . $momstr . '
 		<h2>Owned by ' . $result["c_ownername"] . '</h2><br>
-		<img src="pokemon/images/monimages/' . $shine2 . '600px-' . str_pad($result["c_monid"] , 3 , "0" , STR_PAD_LEFT) . $pokemonname . '.png" />';
+		' . $img;
 		$clvl = next_lvl($result["c_level"]);
 		$plvl = next_lvl($result["c_level"]-1);
 		$cexp = $result["c_exp"] - $plvl;
@@ -214,8 +229,11 @@ if(isset($_GET['do']) && $_GET['do'] == 'view' && isset($_GET['pokemon']) && $_G
 		    ' . $gender . '<br>
 		</div>';
 		if($userid == $result["c_owner"]) {
-		    $str .= '<div class="card_owners">' . $nick . ' ' . $friend . '</div>';
-		}
+            $str .= '<div class="card_owners">' . $nick . ' ' . $friend . '</div>';
+        }
+        if($userid == $result["c_owner"] && $result["c_shiny"] == 1) {
+            $str .= '<div class="tradelistactive"><h2><a href="pokemon.php?section=pokemon&do=shiny&pokemon=' . $pokemon . '">Update shiny image.</a></h2></div>';
+        }
 		$str .= '<div class="tradelistactive"><h2><a href="pokemon.php?section=pokemon&do=owned&pokemon=' . $result["c_monid"] . '">View users who own the same pokemon.</a></h2></div>';
 		if($userid == $result["c_owner"]) {
 		    $str .= '<div class="tradelistactive"><h2><a href="pokemon.php?section=pokemon&do=nick&pokemon=' . $pokemon . '">Rename this Pokemon</a></h2></div>';
@@ -334,6 +352,33 @@ if(isset($_GET['do']) && $_GET['do'] == 'view' && isset($_GET['pokemon']) && $_G
 		$str .= 'That pokemon is not yours!<br><br>';
 	}
 	echo $str;
+} else if(isset($_GET['do']) && $_GET['do'] == 'shiny' && isset($_GET['pokemon']) && $_GET['pokemon'] <= 20000){
+    // ############ CLEAN VARIABLES ############
+    $vbulletin->input->clean_array_gpc('g', array(
+        'pokemon' => TYPE_INT
+    ));
+    $pokemon = clean_number($vbulletin->GPC['pokemon'],20000);
+
+    // ############ CHECK IF pokemon EXISTS ############
+    $exists = $db->query_first("SELECT EXISTS(SELECT 1 FROM poke_indv WHERE indvid = $pokemon AND userid = $userid AND shiny = 1) AS 'Exists'");
+
+    // ############ MAIN CODE ############
+    if($exists['Exists'] == true) {
+        $str .= '<div class=tcg_body><form class=buy action="pokemon.php?section=pokemon&do=transact&action=shiny" method="post">';
+
+        $str .= 'URL:<br><input class=title name="limitedtextfield" type="text" onKeyDown="limitText(this.form.limitedtextfield,this.form.countdown,100);" 
+		onKeyUp="limitText(this.form.limitedtextfield,this.form.countdown,100);" maxlength="100"><br>
+		<font size="1">(Maximum characters: 100)<br>
+		You have <input readonly type="text" name="countdown" size="3" value="100"> characters left.</font><br>';
+
+        $str .= '<input type="hidden" name="auth" value="Ash" />
+		<input type="hidden" name="pokemon" value="' . $pokemon . '" />
+		<br><input type="submit" value="Change Shiny Image" />
+		</form></div>';
+    } else {
+        $str .= 'That pokemon is not yours!<br><br>';
+    }
+    echo $str;
 } else if(isset($_GET['do']) && $_GET['do'] == 'release' && isset($_GET['pokemon']) && $_GET['pokemon'] <= 20000){
 	// ############ CLEAN VARIABLES ############
 	$vbulletin->input->clean_array_gpc('g', array(
@@ -667,48 +712,97 @@ if(isset($_GET['do']) && $_GET['do'] == 'view' && isset($_GET['pokemon']) && $_G
 	echo $str;
 } else if(isset($_GET['do']) && $_GET['do'] == 'transact') {
     if(isset($_GET['action']) && $_GET['action'] == 'nick') {
-		// ############ POST VARIABLES ############
-		//'p' means it's POST data
-		$vbulletin->input->clean_array_gpc('p', array(
-			'auth' => TYPE_NOHTML,
-			'limitedtextfield' => TYPE_NOHTML,
-			'pokemon' => TYPE_INT
-		));
-		
-		$pokemon = clean_number($vbulletin->GPC['pokemon'],20000);
-		$title = $vbulletin->db->escape_string($vbulletin->GPC['limitedtextfield']);
-		$error = false;
-	
-    	// ############ CHECK IF pokemon EXISTS ############
-    	$exists = $db->query_first("SELECT EXISTS(SELECT 1 FROM poke_indv WHERE indvid = $pokemon AND userid = $userid) AS 'Exists'");
-	    if($exists['Exists'] == false) {
-	        $error = true;
-	    }
-		if(strlen($title)>15) { $error = true; }
-		if($vbulletin->GPC['auth'] != 'Ash') { $error = true; }
-		
-		if(!$error) {
-			$db->query_write("UPDATE 
+        // ############ POST VARIABLES ############
+        //'p' means it's POST data
+        $vbulletin->input->clean_array_gpc('p', array(
+            'auth' => TYPE_NOHTML,
+            'limitedtextfield' => TYPE_NOHTML,
+            'pokemon' => TYPE_INT
+        ));
+
+        $pokemon = clean_number($vbulletin->GPC['pokemon'], 20000);
+        $title = $vbulletin->db->escape_string($vbulletin->GPC['limitedtextfield']);
+        $error = false;
+
+        // ############ CHECK IF pokemon EXISTS ############
+        $exists = $db->query_first("SELECT EXISTS(SELECT 1 FROM poke_indv WHERE indvid = $pokemon AND userid = $userid) AS 'Exists'");
+        if ($exists['Exists'] == false) {
+            $error = true;
+        }
+        if (strlen($title) > 15) {
+            $error = true;
+        }
+        if ($vbulletin->GPC['auth'] != 'Ash') {
+            $error = true;
+        }
+
+        if (!$error) {
+            $db->query_write("UPDATE 
 				`poke_indv` 
 			SET 
 				nick = '" . $title . "' 
 			WHERE 
 				indvid = " . $pokemon);
-			echo 'Changing Nickname...
+            echo 'Changing Nickname...
 			<script type="text/javascript">
 			<!--
 			window.location = "/pokemon.php?section=pokemon&do=view2&pokemon=' . $pokemon . '"
 			//-->
 			</script>';
-		} else {
-			echo 'Something went wrong.
+        } else {
+            echo 'Something went wrong.
 			<script type="text/javascript">
 			<!--
 			window.location = "/pokemon.php"
 			//-->
 			</script>';
-		}
-	} else if(isset($_GET['action']) && $_GET['action'] == 'release') {
+        }
+    } else if(isset($_GET['action']) && $_GET['action'] == 'shiny') {
+        // ############ POST VARIABLES ############
+        //'p' means it's POST data
+        $vbulletin->input->clean_array_gpc('p', array(
+            'auth' => TYPE_NOHTML,
+            'limitedtextfield' => TYPE_NOHTML,
+            'pokemon' => TYPE_INT
+        ));
+
+        $error = false;
+
+        $pokemon = clean_number($vbulletin->GPC['pokemon'],20000);
+
+        $fileurl = $vbulletin->db->escape_string($vbulletin->GPC['limitedtextfield']);
+        $size = getimagesize($fileurl);
+        list($width, $height) = getimagesize($fileurl);
+        if($size == 0) { $error = true; $estr .= 'not an image<br>'; }
+        if($width > 600) { $error = true; $estr .= 'width too big<br>'; }
+        if($height > 600) { $error = true; $estr .= 'height too big<br>'; }
+//        if($width/$height != 1) { $error = true; $estr .= 'error code 148<br>'; }
+
+        // ############ CHECK IF pokemon EXISTS ############
+        $exists = $db->query_first("SELECT EXISTS(SELECT 1 FROM poke_indv WHERE indvid = $pokemon AND userid = $userid AND shiny = 1) AS 'Exists'");
+        if($exists['Exists'] == false) {
+            $error = true;
+            $estr .= 'Bad pokemon<br>';
+        }
+        if(strlen($fileurl)>100) { $error = true; $estr .= 'url too long<br>'; }
+        if($vbulletin->GPC['auth'] != 'Ash') { $error = true; $estr .= 'bad auth<br>'; }
+
+        if(!$error) {
+            $db->query_write("INSERT INTO 
+				`poke_shiny_link` 
+			SET 
+				link = '" . $fileurl . "', 
+				indvid = " . $pokemon);
+            echo 'Changing Shiny Image...
+			<script type="text/javascript">
+			<!--
+			window.location = "/pokemon.php?section=pokemon&do=view2&pokemon=' . $pokemon . '"
+			//-->
+			</script>';
+        } else {
+            echo 'Something went wrong.<br>' . $estr;
+        }
+    } else if(isset($_GET['action']) && $_GET['action'] == 'release') {
 		// ############ POST VARIABLES ############
 		//'p' means it's POST data
 		$vbulletin->input->clean_array_gpc('p', array(
