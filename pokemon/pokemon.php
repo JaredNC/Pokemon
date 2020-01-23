@@ -1267,7 +1267,7 @@ if(isset($_GET['do']) && $_GET['do'] == 'view' && isset($_GET['pokemon']) && $_G
     			LIMIT 1");
             }
 
-            if($result["c_monid"] == 290 {
+            if($result["c_monid"] == 290) {
                 $db->query_write("INSERT INTO `poke_indv`
         			(monid, userid, shiny, catch_date, gender) 
         		VALUES 
