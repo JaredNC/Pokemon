@@ -131,7 +131,7 @@ if(isset($_GET['do']) && $_GET['do'] == 'view' && isset($_GET['pokemon']) && $_G
             $img = '<img src="pokemon/images/monimages/600px-' . str_pad($result["c_monid"] , 3 , "0" , STR_PAD_LEFT) . $pokemonname . '.png" />';
         }
 		$str .= '<h1 class="ownedcard2' . $shine . '">' . $title . '</h1>' . $momstr . '
-		<h2>Owned by ' . $result["c_ownername"] . '</h2><br>
+		<br><h2>Owned by ' . $result["c_ownername"] . '</h2><br>
 		' . $img;
 		$clvl = next_lvl($result["c_level"]);
 		$plvl = next_lvl($result["c_level"]-1);

@@ -9,7 +9,7 @@ echo $navbar;
 echo 'Pokemon start<br><br>';
 
 $str .= '<div class="tcg_body"><a href="pokemon.php?section=gacha&machine=1">Base Machine (1 Token)</a> | <a href="pokemon.php?section=gacha&machine=2">Super Machine (3 Tokens)</a>
- | <a href="pokemon.php?section=gacha&machine=3">Gen II Machine (2 Tokens)</a></div>';
+ | <a href="pokemon.php?section=gacha&machine=3">Gen II Machine (2 Tokens)</a> | <a href="pokemon.php?section=gacha&machine=4">Gen III Machine (1 Token)</a></div>';
 
 if(isset($_GET['do']) && $_GET['do'] == 'roll'){
 	// ############ CLEAN VARIABLES ############
@@ -37,7 +37,9 @@ if(isset($_GET['do']) && $_GET['do'] == 'roll'){
 	    $cost = 1;
 	} else if($machine == 3) {
 	    $cost = 2;
-	} else {
+    } else if($machine == 4) {
+        $cost = 1;
+    } else {
 	    $error = true;
 	}
     
@@ -108,7 +110,9 @@ if(isset($_GET['do']) && $_GET['do'] == 'roll'){
 	    $cost = 3;
 	} else if($machine == 3) {
 	    $cost = 2;
-	} else {
+    } else if($machine == 4) {
+        $cost = 1;
+    } else {
 	    $machine = 1;
 	    $cost = 1;
 	}

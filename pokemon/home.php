@@ -640,8 +640,15 @@ if(isset($_GET['do']) && $_GET['do'] == 'list') {
 	));
 	$listuser = (isset($_GET['user']) && $_GET['user'] <= 10000) ? clean_number($vbulletin->GPC['user'],10000) : $userid;
 	$gen = (isset($_GET['gen']) && $_GET['gen'] <= 10) ? clean_number($vbulletin->GPC['gen'],10) : 1;
-	$dex = ($gen == 2) ? 251 : 151;
-	
+//	$dex = ($gen == 2) ? 251 : 151;
+	if($gen == 3) {
+	    $dex = 386;
+    } else if($gen == 2) {
+	    $dex = 251;
+    } else {
+	    $dex = 151;
+    }
+
 	$userqry = $db->query_first("SELECT `username` FROM `user` WHERE `userid` = " . $listuser);
 	
 	// ############ QUERY VARIABLES ############
@@ -660,6 +667,11 @@ if(isset($_GET['do']) && $_GET['do'] == 'list') {
 	        $owns[$resultLoop["monid"]] = 1;
 	    }
 	}
+    $str .= '<div class="tcg_body"><a href="pokemon.php?section=home&do=dex&gen=1">Gen 1 Pokedex</a> | 
+    <a href="pokemon.php?section=home&do=dex&gen=2">Gen 2 Pokedex</a> | 
+    <a href="pokemon.php?section=home&do=dex&gen=3">Gen 3 Pokedex</a>
+    </div>';
+
     $str .= '<div class="cards_table">
 		<table id="myTable" class="tablesorter"> 
 			<tbody id="fbody"><tr>';
