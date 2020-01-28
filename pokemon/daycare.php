@@ -3,7 +3,7 @@
 $membergroups = explode(',',$vbulletin->userinfo[membergroupids]);
 $cash = $vbulletin->userinfo[ucash];
 $equip = $vbulletin->userinfo[poke_egg];
-$banned = array(0,144,145,146,150,151,243,244,245,249,250,251);
+$banned = array(0,144,145,146,150,151,243,244,245,249,250,251,377,378,379,380,381,382,383,384,385,386);
 
 if ($userid != 0 && usergroup != 8 && usergroup != 3 && usergroup != 53 && in_array(81,$membergroups))
 {

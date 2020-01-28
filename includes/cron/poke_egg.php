@@ -43,7 +43,7 @@ AND monid IN(
 ORDER BY `poke_indv`.`monid`  DESC";
 
 $result = $vbulletin->db->query_read($qry);
-$banned = array(0,144,145,146,150,151,243,244,245,249,250,251);
+$banned = array(0,144,145,146,150,151,243,244,245,249,250,251,377,378,379,380,381,382,383,384,385,386);
 while ($resultLoop = $vbulletin->db->fetch_array($result)) {
     if($resultLoop['date'] < (time() - 60*60*24) && mt_rand(1,3) == 1 && !in_array($resultLoop['monid'],$banned)){
         $evo = 1;
