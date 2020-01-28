@@ -19,6 +19,19 @@ $vbulletin->input->clean_array_gpc('g', array(
 $person = (clean_number($vbulletin->GPC['user'],2000) == 0) ? $userid : clean_number($vbulletin->GPC['user'],2000);
 $spectime = clean_number($vbulletin->GPC['date'],time());
 
+$h1 = '<h1 class=party>Highest Level Pokemon<br>
+		<a href="/pokemon.php?section=flex&do=toplvl&num=10">Top 10 Pokemon</a> - 
+		<a href="/pokemon.php?section=flex&do=toplvl&num=25">Top 25 Pokemon</a> <br>
+		<a href="/pokemon.php?section=flex&do=topown&num=10">Top 10 Trainers</a> - 
+		<a href="/pokemon.php?section=flex&do=topown&num=25">Top 25 Trainers</a> <br>
+		<a href="/pokemon.php?section=flex&do=topdex&num=10">Top 10 Pokedex</a> - 
+		<a href="/pokemon.php?section=flex&do=topdex&num=25">Top 25 Pokedex</a> <br>
+		<a href="/pokemon.php?section=flex&do=topdex&num=10&gen=2">Top 10 Pokedex - Gen II</a> - 
+		<a href="/pokemon.php?section=flex&do=topdex&num=25&gen=2">Top 25 Pokedex - Gen II</a> <br>
+		<a href="/pokemon.php?section=flex&do=topdex&num=10&gen=3">Top 10 Pokedex - Gen III</a> - 
+		<a href="/pokemon.php?section=flex&do=topdex&num=25&gen=3">Top 25 Pokedex - Gen III</a> <br>
+	</h1><br>';
+
 if($vbulletin->GPC['do'] == 'toplvl') {
 	// ###### GET VARIABLES ######
 	if(isset($vbulletin->GPC['num']) && $vbulletin->GPC['num'] > 10){
@@ -33,14 +46,7 @@ if($vbulletin->GPC['do'] == 'toplvl') {
 	
 	// ###### MAIN CODE ######
 	$str .= '<div class="cards_table">
-	<h1 class=party>Highest Level Pokemon<br>
-		<a href="/pokemon.php?section=flex&do=toplvl&num=10">Top 10 Pokemon</a> - 
-		<a href="/pokemon.php?section=flex&do=toplvl&num=25">Top 25 Pokemon</a> - 
-		<a href="/pokemon.php?section=flex&do=topown&num=10">Top 10 Trainers</a> - 
-		<a href="/pokemon.php?section=flex&do=topown&num=25">Top 25 Trainers</a> - 
-		<a href="/pokemon.php?section=flex&do=topdex&num=10">Top 10 Pokedex</a> - 
-		<a href="/pokemon.php?section=flex&do=topdex&num=25">Top 25 Pokedex</a>
-	</h1><br>
+	' . $h1 . '
 	<table id="myTable" class="tablesorter">
 		<thead>
 		<tr>
@@ -104,14 +110,7 @@ if($vbulletin->GPC['do'] == 'toplvl') {
 	
 	// ###### MAIN CODE ######
 	$str .= '<div class="cards_table">
-	<h1 class=party>Total Pokemon Owned<br>
-		<a href="/pokemon.php?section=flex&do=toplvl&num=10">Top 10 Pokemon</a> - 
-		<a href="/pokemon.php?section=flex&do=toplvl&num=25">Top 25 Pokemon</a> - 
-		<a href="/pokemon.php?section=flex&do=topown&num=10">Top 10 Trainers</a> - 
-		<a href="/pokemon.php?section=flex&do=topown&num=25">Top 25 Trainers</a> - 
-		<a href="/pokemon.php?section=flex&do=topdex&num=10">Top 10 Pokedex</a> - 
-		<a href="/pokemon.php?section=flex&do=topdex&num=25">Top 25 Pokedex</a>
-	</h1><br>
+	' . $h1 . '
 	<table id="myTable" class="tablesorter">
 		<thead>
 		<tr>
@@ -162,24 +161,21 @@ if($vbulletin->GPC['do'] == 'toplvl') {
 	} else{
 		$gen = 1;
 	}
-	$dex = ($gen == 2) ? 252 : 152;
-	
+    if($gen == 3) {
+        $dex = 387;
+    } else if($gen == 2) {
+        $dex = 252;
+    } else {
+        $dex = 152;
+    }
+
 	// ###### QUERY VARIABLES ######
 	
 	
 	
 	// ###### MAIN CODE ######
 	$str .= '<div class="cards_table">
-	<h1 class=party>Highest Pokedex Entries<br>
-		<a href="/pokemon.php?section=flex&do=toplvl&num=10">Top 10 Pokemon</a> - 
-		<a href="/pokemon.php?section=flex&do=toplvl&num=25">Top 25 Pokemon</a> - 
-		<a href="/pokemon.php?section=flex&do=topown&num=10">Top 10 Trainers</a> - 
-		<a href="/pokemon.php?section=flex&do=topown&num=25">Top 25 Trainers</a><br> 
-		<a href="/pokemon.php?section=flex&do=topdex&num=10">Top 10 Pokedex - Gen I</a> - 
-		<a href="/pokemon.php?section=flex&do=topdex&num=25">Top 25 Pokedex - Gen I</a> - 
-		<a href="/pokemon.php?section=flex&do=topdex&num=10&gen=2">Top 10 Pokedex - Gen II</a> - 
-		<a href="/pokemon.php?section=flex&do=topdex&num=25&gen=2">Top 25 Pokedex - Gen II</a>
-	</h1><br>
+	' . $h1 . '
 	<table id="myTable" class="tablesorter">
 		<thead>
 		<tr>
@@ -224,6 +220,7 @@ if($vbulletin->GPC['do'] == 'toplvl') {
 	<a href="/pokemon.php?section=flex&do=topown">Most Owned</a><br>
 	<a href="/pokemon.php?section=flex&do=topdex">Best Pokedex - Gen I</a><br>
 	<a href="/pokemon.php?section=flex&do=topdex&gen=2">Best Pokedex - Gen II</a><br>
+	<a href="/pokemon.php?section=flex&do=topdex&gen=3">Best Pokedex - Gen III</a><br>
 	<a href="/pokemon.php?section=flex&do=stats&user=' . $userid . '">Coming Soon - User Stats</a>';
 	echo $str;
 }
