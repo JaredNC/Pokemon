@@ -105,7 +105,7 @@ if(isset($_GET['do']) && $_GET['do'] == 'admit'){
     echo $str;
 } else if(isset($_GET['do']) && $_GET['do'] == 'egg'){
     $str = '<div class="tcg_body"><h1><u>UNCLAIMED EGGS:</u></h1><br>';
-    $str2 = '<div class="tcg_body"><h1><u>OWNED EGGS:</u></h1><br>';
+    $str_own = '<div class="tcg_body"><h1><u>OWNED EGGS:</u></h1><br>';
 
     $result = $db->query_read("
 	    SELECT
@@ -156,7 +156,9 @@ if(isset($_GET['do']) && $_GET['do'] == 'admit'){
 	    WHERE 
             poke_egg.ownerid = $userid
             AND poke_egg.userid <> 1675
-            AND poke_egg.hatch_date = 0");
+            AND poke_egg.hatch_date = 0
+        ORDER BY
+            poke_egg.monid ASC");
     while ($resultLoop = $db->fetch_array($result2)) {
         if($resultLoop['steps'] < 50) {
             $egg_status = 1;
@@ -176,12 +178,16 @@ if(isset($_GET['do']) && $_GET['do'] == 'admit'){
         $mom = '<a href="/pokemon.php?section=pokemon&do=view2&pokemon=' . $resultLoop['mom_id'] . '">' . $nick . '</a>';
         if(in_array($monid,$banned)) {
             $monid = 0;
-            $name = 'Unknown';
+            $name = '<b>Unknown</b>';
             $mom = 'Unknown';
         }
         if($egg_id == $equip) {
-            $str2 .= '<a href="/pokemon.php?section=pokemon&do=view&pokemon=' . $monid . '">' . $name . '</a> Egg. Mother: ' . $mom . ' - 
+            $str4 = '<a href="/pokemon.php?section=pokemon&do=view&pokemon=' . $monid . '">' . $name . '</a> Egg. Mother: ' . $mom . ' - 
                     <b>Your Active Egg</b> <img alt="More Info!" class=more src="images/icons/icon1.png" onclick="moreinfo(' . $egg_status . ')" /><br>';
+        } else if($monid == 0) {
+            $str3 = '<a href="/pokemon.php?section=pokemon&do=view&pokemon=' . $monid . '">' . $name . '</a> Egg. Mother: ' . $mom . ' - 
+                    (<a href="/pokemon.php?section=daycare&do=transact&action=egg_equip&egg=' . $egg_id . '">Equip This Egg</a>) 
+                    (<a href="/pokemon.php?section=daycare&do=gift&egg=' . $egg_id . '">Gift this Egg</a>)<br>';
         } else {
             $str2 .= '<a href="/pokemon.php?section=pokemon&do=view&pokemon=' . $monid . '">' . $name . '</a> Egg. Mother: ' . $mom . ' - 
                     (<a href="/pokemon.php?section=daycare&do=transact&action=egg_equip&egg=' . $egg_id . '">Equip This Egg</a>) 
@@ -189,9 +195,11 @@ if(isset($_GET['do']) && $_GET['do'] == 'admit'){
         }
     }
     $str .= '</div>';
-    $str2 .= '</div>';
+    $str2 .= $str3;
+    $str_own .= $str4 . $str2;
+    $str_own .= '</div>';
     echo $str;
-    echo $str2;
+    echo $str_own;
     $itemqry = "SELECT 
 		count(`indv_item_id`) AS 'count'
 	FROM 
