@@ -194,6 +194,8 @@ if(isset($_GET['do']) && $_GET['do'] == 'view' && isset($_GET['pokemon']) && $_G
         } else if ($result["c_monid"] == 265 && $result["c_level"] >= 7) {
             $eevee .= '<div class="tradelistactive"><h2><a href="pokemon.php?section=pokemon&do=transact&action=evo&pokemon=' . $pokemon . '&method=998">Evolve this Pokemon to Silcoon</a></h2></div>';
             $eevee .= '<div class="tradelistactive"><h2><a href="pokemon.php?section=pokemon&do=transact&action=evo&pokemon=' . $pokemon . '&method=999">Evolve this Pokemon to Cascoon</a></h2></div>';
+        } else if ($result["c_monid"] == 360 && $result["c_level"] >= 15) {
+            $eevee .= '<div class="tradelistactive"><h2><a href="pokemon.php?section=pokemon&do=transact&action=evo&pokemon=' . $pokemon . '&method=999">Evolve this Pokemon</a></h2></div>';
         } else if ($result["c_monid"] == 44) {
 		    if($item[1] > 0) {
 		        $eevee .= '<div class="tradelistactive"><h2><a href="pokemon.php?section=pokemon&do=transact&action=evo&pokemon=' . $pokemon . '&method=1">Evolve this Pokemon with Leaf Stone</a></h2></div>';
@@ -1129,7 +1131,7 @@ if(isset($_GET['do']) && $_GET['do'] == 'view' && isset($_GET['pokemon']) && $_G
 		    } else {
 		        $error = true;
 		    }
-		    $error = ($result["c_level"] < $result["c_evo"]) ? true : false;
+		    $error = ($result["c_level"] < 20) ? true : false;
 		    $itembool = false;
         } else if($result["c_monid"] == 265) {
             if($method == 998) {
@@ -1139,19 +1141,27 @@ if(isset($_GET['do']) && $_GET['do'] == 'view' && isset($_GET['pokemon']) && $_G
             } else {
                 $error = true;
             }
-            $error = ($result["c_level"] < $result["c_evo"]) ? true : false;
+            $error = ($result["c_level"] < 7) ? true : false;
+            $itembool = false;
+        } else if($result["c_monid"] == 360) {
+            if($method == 999) {
+                $new_mon = 202;
+            } else {
+                $error = true;
+            }
+            $error = ($result["c_level"] < 15) ? true : false;
             $itembool = false;
         } else if($result["c_monid"] == 238) {
 		    $new_mon = 124;
-		    $error = ($result["c_level"] < $result["c_evo"]) ? true : false;
+		    $error = ($result["c_level"] < 30) ? true : false;
 		    $itembool = false;
 		} else if($result["c_monid"] == 239) {
 		    $new_mon = 125;
-		    $error = ($result["c_level"] < $result["c_evo"]) ? true : false;
+		    $error = ($result["c_level"] < 30) ? true : false;
 		    $itembool = false;
 		} else if($result["c_monid"] == 240) {
 		    $new_mon = 126;
-		    $error = ($result["c_level"] < $result["c_evo"]) ? true : false;
+		    $error = ($result["c_level"] < 30) ? true : false;
 		    $itembool = false;
 		} else if($result["c_evo"] == 1) {
 		    //Check if items
