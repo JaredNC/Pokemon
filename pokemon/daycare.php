@@ -602,8 +602,16 @@ if(isset($_GET['do']) && $_GET['do'] == 'admit'){
     	$banstr = implode("','",$banned);
     	
 		$exists = $db->query_first("SELECT EXISTS(SELECT 1 FROM poke_egg WHERE monid IN('" . $banstr . "') AND userid = $userid) AS 'Exists'");
-		
-		if($exists['Exists'] == false && $gacha_count > $cost-1) {
+        if($exists['Exists']) {
+            $error = true;
+            $error_str .= 'You already have a mystery egg.<br><br>';
+        }
+        if($gacha_count < $cost) {
+            $error = true;
+            $error_str .= 'You don\'t have enough tokens.<br><br>';
+        }
+
+        if(!$error) {
 		    $monid = poke_item_roll(1);
 		    $db->query_write("UPDATE 
         		`poke_items` 
@@ -628,12 +636,7 @@ if(isset($_GET['do']) && $_GET['do'] == 'admit'){
 			
 		} else {
 			
-			echo 'You don\'t have enough tokens.
-			<script type="text/javascript">
-			<!--
-			window.location = "/pokemon.php?section=daycare&do=egg"
-			//-->
-			</script>';
+			echo $error_str;
 			
 			/*
 			print_r($banned);
