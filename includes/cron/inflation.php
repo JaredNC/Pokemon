@@ -36,9 +36,9 @@ $totalactivewealth['total'] = intval($totalactivewealth['total']);
 $totalactivewealth['total'] = $totalactivewealth['total'] - $totalloans['total'] + $totalinvestments['total'];
 
 $vbulletin->db->query_write("INSERT INTO " . TABLE_PREFIX . "inflation 
-				(dateline, totalwealth, totalactivewealth) 
+				(dateline, totalwealth, totalactivewealth, debt, investments) 
 			VALUES 
-				(" . $timestamp . ", " . $totalwealth['total'] . ", " . $totalactivewealth['total'] . ")");
+				(" . $timestamp . ", " . $totalwealth['total'] . ", " . $totalactivewealth['total'] . ", " . $totalloans['total'] . ", " . $totalinvestments['total'] . ")");
 
 
 log_cron_action('', $nextitem, 1);

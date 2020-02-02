@@ -1051,6 +1051,7 @@ if(isset($_GET['do']) && $_GET['do'] == 'view' && isset($_GET['pokemon']) && $_G
 			`poke_indv`.`indvid` = $pokemon");
 		
 		//Check Evo Possibility
+        $evo_mon = $result["c_monid"];
 		if($result["c_monid"] == 133) {
 		    //Check if items
     		$itemqry = "SELECT 
@@ -1277,7 +1278,7 @@ if(isset($_GET['do']) && $_GET['do'] == 'view' && isset($_GET['pokemon']) && $_G
     			LIMIT 1");
             }
 
-            if($result["c_monid"] == 290) {
+            if($evo_mon == 290) {
                 $db->query_write("INSERT INTO `poke_indv`
         			(monid, userid, shiny, catch_date, gender) 
         		VALUES 
