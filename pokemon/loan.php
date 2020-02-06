@@ -408,10 +408,19 @@ Finance start<br><br>';
         // ### Calculate Performance ###
         $performance = 0;
 
+        // Get time window
+        $time_qry = 'SELECT dateline 
+        FROM `poke_investment_pmt` 
+        WHERE `type` = "automatic"
+        ORDER BY `dateline` DESC
+        LIMIT 1';
+        $time_result = $vbulletin->db->query_first($time_qry);
+
         // Posts
+        $time_var = $time_result['dateline'];
         $post_qry = 'SELECT count(*) AS `count` 
         FROM `post` 
-        WHERE `userid` = ' . $userid . ' AND `dateline` > (UNIX_TIMESTAMP() - 60*60*24)';
+        WHERE `userid` = ' . $userid . ' AND `dateline` > ' . $time_var;
         $post_result = $vbulletin->db->query_first($post_qry);
         $post_score = $post_result["count"] * 0.1;
         $performance += $post_score;
@@ -419,7 +428,7 @@ Finance start<br><br>';
         // Threads
         $thread_qry = 'SELECT count(*) AS `count` 
         FROM `thread` 
-        WHERE `postuserid` = ' . $userid . ' AND `dateline` > (UNIX_TIMESTAMP() - 60*60*24)';
+        WHERE `postuserid` = ' . $userid . ' AND `dateline` > ' . $time_var;
         $thread_result = $vbulletin->db->query_first($thread_qry);
         $thread_score = $thread_result["count"] * 0.1;
         $performance += $thread_score;
@@ -428,7 +437,7 @@ Finance start<br><br>';
         $like_qry = 'SELECT count(*) AS `count` 
         FROM `post_thanks` 
         INNER JOIN `post` ON `post_thanks`.`postid` = `post`.`postid` 
-        WHERE `post`.`userid` = ' . $userid . ' AND `post_thanks`.`date` > (UNIX_TIMESTAMP() - 60*60*24)';
+        WHERE `post`.`userid` = ' . $userid . ' AND `post_thanks`.`date` > ' . $time_var;
         $like_result = $vbulletin->db->query_first($like_qry);
         $like_score = $like_result["count"] * 0.25;
         $performance += $like_score;
