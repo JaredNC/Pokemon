@@ -106,8 +106,8 @@ function moreinfo(id) {
 echo $header; 
 }
 //SET WHO CAN VIEW PAGE
-if ($userid != 0 && $usergroup != 8 && $usergroup != 3 && $usergroup != 53)
-//if ($usergroup != 8 && $usergroup != 3 && $usergroup != 53)
+//if ($userid != 0 && $usergroup != 8 && $usergroup != 3 && $usergroup != 53)
+if ($usergroup != 8 && $usergroup != 3 && $usergroup != 53)
 {
 
 //## START PAGES ##

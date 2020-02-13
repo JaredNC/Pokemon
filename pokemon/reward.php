@@ -2,7 +2,7 @@
 $banned = array(103,678,16,851,1464,64,24,1639,1448,113,656,82,647);
 $userposts			=	$vbulletin->userinfo[posts];
 
-if ($userid != 0 && usergroup != 8 && usergroup != 3 && usergroup != 53 && $userposts >= 250 && !in_array($userid,$banned))
+if ($userid != 0 && $usergroup != 8 && $usergroup != 3 && $usergroup != 53 && $userposts >= 25 && !in_array($userid,$banned))
 {
 $navbits = construct_navbits(array('/pokemon.php' => 'NewCiv Pokemon', '' => '<a href="/pokemon.php?section=home">Pokemon Home</a>')); 
 $navbar = render_navbar_template($navbits); 

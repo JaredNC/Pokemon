@@ -1,5 +1,6 @@
 <?php
-if ($userid != 0 && $usergroup != 8 && $usergroup != 3 && $usergroup != 53)
+//if ($userid != 0 && $usergroup != 8 && $usergroup != 3 && $usergroup != 53)
+if ($usergroup != 8 && $usergroup != 3 && $usergroup != 53)
 {
 $navbits = construct_navbits(array('/pokemon.php' => 'NewCiv Pokemon', '' => '<a href="/pokemon.php?section=home">Pokemon Home</a>')); 
 $navbar = render_navbar_template($navbits); 

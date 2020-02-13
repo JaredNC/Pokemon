@@ -1,7 +1,8 @@
 <?
 //SET WHO CAN VIEW PAGE
-if ($userid != 0 && usergroup != 8 && usergroup != 3 && usergroup != 53)
+//if ($userid != 0 && usergroup != 8 && usergroup != 3 && usergroup != 53)
 //if ($userid != 0 && $usergroup != 8 && $usergroup != 3 && $usergroup != 53 && $userposts >= 100)
+if ($usergroup != 8 && $usergroup != 3 && $usergroup != 53)
 {
 
 $navbits = construct_navbits(array('/pokemon.php' => 'NewCiv Pokemon')); 
@@ -15,13 +16,13 @@ echo $navbar;
 	You have ' . $pokeballs . ' pokeballs! <a href="/buy.php?do=buypokeballs">Buy More</a><br>';
 	$str .= '<a href="pokemon.php?section=gacha">Roll the Pokemon Gacha Machine</a><br>';
 	$str .= '<a href="pokemon.php?section=reward">Daily Rewards</a><br>';
-	
-	$result1 = $db->query_first("SELECT count(*) AS `count` FROM `poke_indv` WHERE `userid`=$userid");
+    $str .= '<a href="pokemon.php?section=flex">Leaderboards</a><br>';
+
+    $result1 = $db->query_first("SELECT count(*) AS `count` FROM `poke_indv` WHERE `userid`=$userid");
 	if($result1["count"] > 0) { 
 		$str .= '<a href="pokemon.php?section=home&do=list">Owned Pokemon List</a><br>';
 		$str .= '<a href="pokemon.php?section=home&do=ilist">Owned Item List</a><br>';
 		$str .= '<a href="pokemon.php?section=home&do=dex">Pokedex</a><br>';
-		$str .= '<a href="pokemon.php?section=flex">Leaderboards</a><br>';
 		$str .= '<a href="pokemon.php?section=buy">Poke Mart</a><br>';
 		$str .= '<a href="showthread.php?1053575">Trade in Pokemon</a><br>';
 		$str .= '<a href="pokemon.php?section=daycare">Pokemon Daycare</a><br>';
