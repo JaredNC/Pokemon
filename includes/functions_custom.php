@@ -25,6 +25,25 @@ function encode_offer($ucash,$cards) {
 	}
 	return $output;
 }
+function calc_networth($user) {
+    $user_id = clean_number($user, 10000);
+    global $db;
+
+    $userqry = "SELECT 
+			`user`.`username`, 
+            IFNULL((SELECT sum(`balance` + `int_payable`) FROM `poke_loan` WHERE `poke_loan`.`userid` = `user`.`userid`),'0') AS `debt`,
+			IFNULL((SELECT sum(`balance` + `int_payable`) FROM `poke_investment` WHERE `poke_investment`.`userid` = `user`.`userid`),'0') AS `assets`,
+			FLOOR( `user`.`ucash` + `user`.`market_bank1` + `user`.`gameroom_cash` /15) AS `networth` 
+		FROM 
+			`user`
+		WHERE
+		    `userid` = " . $user_id . "
+		ORDER BY 
+			`networth` - `debt` + `assets` DESC";
+    $result = $db->query_first($userqry);
+    $networth = (int)$result['networth'] - (int)$result['debt'] + (int)$result['assets'];
+    return $networth;
+}
 function grab_poke_info($card) {
 	//This function takes an array of poke ids and returns all the necessary info regarding them.
 	//COPIED FROM CARD

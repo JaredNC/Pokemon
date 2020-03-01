@@ -247,7 +247,7 @@ if(isset($_GET['do']) && $_GET['do'] == 'transact') {
 } else if(isset($_GET['do']) && $_GET['do'] == 'buygen2') {
 	if(!in_array(81,$membergroups)){
     	$cash = number_format($cash, '2');
-    	$cost = 3000;
+    	$cost = 200;
     	
     	$str = '<div class=party><h1 class=party>Buy Johto Tourist Visa</h1><br>' . "\n" . '
     	You have ' . $cash . ' pengos and the cost is ' . $cost . ' pengos.<br>' . "\n" . '<br>
