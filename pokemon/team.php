@@ -309,6 +309,80 @@ if(isset($_GET['do']) && $_GET['do'] == 'input') {
 		$str .= 'That team does not exist!<br>';
 	}
 	echo $str;
+} else if(isset($_GET['do']) && $_GET['do'] == 'view_raw' && isset($_GET['deck']) && $_GET['deck'] <= 5000){
+    // ############ CLEAN VARIABLES ############
+    $vbulletin->input->clean_array_gpc('g', array(
+        'deck' => TYPE_INT
+    ));
+    $deck = clean_number($vbulletin->GPC['deck'],5000);
+
+    // ############ CHECK IF TRADE EXISTS ############
+    $exists = $db->query_first("SELECT EXISTS(SELECT 1 FROM poke_deck WHERE deckid = $deck) AS 'Exists'");
+
+    // ############ MAIN CODE ############
+    if($exists['Exists'] == true) {
+        $result1 = $db->query_first("SELECT
+			`poke_deck`.`decklist` AS 'cardlist',
+			`poke_deck`.`name` AS 'deckname',
+			`poke_deck`.`userid` AS 'userid',
+			`poke_deck`.`rental` AS 'rental',
+			`user`.`username` AS 'username'
+		FROM 
+			`poke_deck`
+			INNER JOIN (`user`)
+				ON (`poke_deck`.`userid` = `user`.`userid`)
+		WHERE
+			`poke_deck`.`deckid` = $deck");
+
+        if($result1["userid"] == 15 && $result1["rental"] != 1) {
+            echo 'That team has been deleted.</div>';
+            exit($footer);
+        }
+        $cards = explode(',',$result1["cardlist"]);
+        $qrytime = time();
+        $listuser = $userid;
+
+        // ############ QUERY VARIABLES ############
+        $qry = "SELECT 
+			`poke_indv`.`indvid` AS 'c_id', 
+			`poke_indv`.`nick` AS 'c_nick', 
+			`poke_indv`.`level` AS 'c_level', 
+			`poke_mon`.`monname` AS 'c_name', 
+			`poke_mon`.`type` AS 'c_type',
+			`poke_indv`.`friend` AS 'c_friend',
+			`poke_mon`.`type` AS 'c_rarity',
+			`poke_indv`.`monid` AS 'c_masterid'
+		FROM 
+			`poke_indv`
+			LEFT JOIN (`poke_mon`)
+				ON (`poke_indv`.`monid` = `poke_mon`.`monid`)
+		WHERE  
+			`poke_indv`.`indvid` IN(" . $result1["cardlist"] . ")
+		ORDER BY 
+			`poke_indv`.`monid` ASC";
+        $result = $db->query_read($qry);
+        //echo "<br>Query Time Elapsed: ".(microtime(true) - $qrytime)."s<br>";
+        $counter = 0;
+        $str .= '<div class="team_dump">';
+        while ($resultLoop = $db->fetch_array($result)) {
+            $counter++;
+            $monid = $resultLoop["c_masterid"];
+            $nick = ($resultLoop["c_nick"] == '') ? 'NA' : $resultLoop["c_nick"];
+            $level = $resultLoop["c_level"];
+            $friend = $resultLoop["c_friend"];
+            $item_id = 0;
+            $type = $resultLoop["c_type"];
+
+            $str .= '<p>' . implode(",",array($monid,$nick,$level,$friend,$item_id,$type)) . '</p>';
+        }
+        $str .= '</div>';
+
+        $str .= '<br>Total Pokemon: ' . $counter . '<br>';
+    } else {
+        $str .= '<div class="team_dump">0</div>
+        That team does not exist!<br>';
+    }
+    echo $str;
 } else if(isset($_GET['do']) && $_GET['do'] == 'make1') {
 	$listuser = $userid;
 	
