@@ -335,7 +335,8 @@ if(isset($_GET['do']) && $_GET['do'] == 'input') {
 			`poke_deck`.`deckid` = $deck");
 
         if($result1["userid"] == 15 && $result1["rental"] != 1) {
-            echo 'That team has been deleted.</div>';
+            echo '<div id="team_dump">0</div>
+                That team has been deleted.</div>';
             exit($footer);
         }
         $cards = explode(',',$result1["cardlist"]);
@@ -350,7 +351,6 @@ if(isset($_GET['do']) && $_GET['do'] == 'input') {
 			`poke_mon`.`monname` AS 'c_name', 
 			`poke_mon`.`type` AS 'c_type',
 			`poke_indv`.`friend` AS 'c_friend',
-			`poke_mon`.`type` AS 'c_rarity',
 			`poke_indv`.`monid` AS 'c_masterid'
 		FROM 
 			`poke_indv`
@@ -358,16 +358,15 @@ if(isset($_GET['do']) && $_GET['do'] == 'input') {
 				ON (`poke_indv`.`monid` = `poke_mon`.`monid`)
 		WHERE  
 			`poke_indv`.`indvid` IN(" . $result1["cardlist"] . ")
-		ORDER BY 
-			`poke_indv`.`monid` ASC";
+		ORDER BY `poke_indv`.`level` DESC";
         $result = $db->query_read($qry);
         //echo "<br>Query Time Elapsed: ".(microtime(true) - $qrytime)."s<br>";
         $counter = 0;
-        $str .= '<div class="team_dump">';
+        $str .= '<div id="team_dump">';
         while ($resultLoop = $db->fetch_array($result)) {
             $counter++;
             $monid = $resultLoop["c_masterid"];
-            $nick = ($resultLoop["c_nick"] == '') ? 'NA' : $resultLoop["c_nick"];
+            $nick = ($resultLoop["c_nick"] == '') ? $resultLoop["c_name"] : $resultLoop["c_nick"];
             $level = $resultLoop["c_level"];
             $friend = $resultLoop["c_friend"];
             $item_id = 0;
@@ -377,9 +376,11 @@ if(isset($_GET['do']) && $_GET['do'] == 'input') {
         }
         $str .= '</div>';
 
+        $str .= '<div id="team_owner">' . $result1["username"] . '</div>';
+
         $str .= '<br>Total Pokemon: ' . $counter . '<br>';
     } else {
-        $str .= '<div class="team_dump">0</div>
+        $str .= '<div id="team_dump">0</div>
         That team does not exist!<br>';
     }
     echo $str;
