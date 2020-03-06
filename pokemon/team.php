@@ -1079,7 +1079,27 @@ if(isset($_GET['do']) && $_GET['do'] == 'input') {
 	}
 	echo $str;
 } else if(isset($_GET['do']) && $_GET['do'] == 'list') {
-	// ############ QUERY VARIABLES ############
+    // ############ CLEAN VARIABLES ############
+    $vbulletin->input->clean_array_gpc('g', array(
+        'user' => TYPE_INT
+    ));
+    $deck = clean_number($vbulletin->GPC['user'],5000);
+
+    // ############ CHECK IF USER EXISTS ############
+    if($deck > 0) {
+        $exists = $db->query_first("SELECT EXISTS(SELECT 1 FROM user WHERE userid = $deck) AS 'Exists'");
+    } else {
+        $exists = false;
+    }
+
+    // ############ SET USER ############
+    if($exists['Exists'] == true) {
+        $listuser = $deck;
+    } else {
+        $listuser = $userid;
+    }
+
+    // ############ QUERY VARIABLES ############
 	$qry = "SELECT 
 		`poke_deck`.`deckid` AS 'd_id', 
 		`poke_deck`.`name` AS 'd_name',
@@ -1087,7 +1107,7 @@ if(isset($_GET['do']) && $_GET['do'] == 'input') {
 	FROM 
 		`poke_deck`
 	WHERE  
-		`poke_deck`.`userid`=$userid
+		`poke_deck`.`userid`=$listuser
 	ORDER BY 
 		`poke_deck`.`deckid` ASC";
 	$result = $db->query_read($qry);
