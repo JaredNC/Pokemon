@@ -5,216 +5,87 @@ if ($userid != 0 && $usergroup != 8 && $usergroup != 3 && $usergroup != 53)
 $navbits = construct_navbits(array('/pokemon.php' => 'Pokemon', '' => '<a href="/pokemon.php?section=pokemon">Pokemon</a>')); 
 $navbar = render_navbar_template($navbits); 
 echo $navbar;
-echo 'Pokemon start<br><br>';
+echo '<a href="https://forums.novociv.org/pokemon.php?section=spawns&do=admin">Spawn Tables Home</a><br><br>';
 
-if(isset($_GET['do']) && $_GET['do'] == 'admin' && ($usergroup == 6 || $usergroup == 29)){
-    if(isset($_GET['action']) && $_GET['action'] == 'give') {
+if(isset($_GET['do']) && $_GET['do'] == 'forum' && ($usergroup == 6 || $usergroup == 29)) {
+    $vbulletin->input->clean_array_gpc('g', array(
+        'forum' => TYPE_INT
+    ));
+    $forumid = clean_number($vbulletin->GPC['forum'],9999);
+    $file = 'pokemon/spawns/' . $forumid . '.txt';
+    if(file_exists($file)) {
+        $textarea = file_get_contents($file);
+        $str .= '
+        <div class=tcg_body>
+            <form class=buy action="pokemon.php?section=spawns&do=admin&action=update" method="post">
+                <input type="hidden" name="forum" value="' . $forumid . '" />
+            	Spawn Table for forumid ' . $forumid . ':<br>
+                <textarea name="spawn" id="vB_Editor_QR_textarea" rows="10" cols="80" dir="ltr" tabindex="1">' . $textarea . '</textarea>
+                <br>
+            	<input type="hidden" name="auth" value="Kaos" />
+            	<br><input type="submit" value="Update Spawn Table" />
+        	</form>
+        </div>
+        ';
+        echo $str;
+    } else {
+        $str .= "Forum does not exist yet.<br><br>";
+        $str .= '
+        <div class=tcg_body>
+            <form class=buy action="pokemon.php?section=spawns&do=admin&action=update" method="post">
+                ID of Forum:<br>
+                <input name="forum" type="text" maxlength="5" value="' . $forumid . '"><br><br>
+                Spawn Table:<br>
+                <textarea name="spawn" id="vB_Editor_QR_textarea" rows="10" cols="80" dir="ltr" tabindex="1"></textarea>
+                <br>
+            	<input type="hidden" name="auth" value="Kaos" />
+            	<br><input type="submit" value="Update Spawn Table" />
+        	</form>
+        </div>
+        ';
+        echo $str;
+    }
+} else if(isset($_GET['do']) && $_GET['do'] == 'admin' && ($usergroup == 6 || $usergroup == 29)){
+    if(isset($_GET['action']) && $_GET['action'] == 'update') {
         // ############ POST VARIABLES ############
-		//'p' means it's POST data
-		$vbulletin->input->clean_array_gpc('p', array(
-			'auth' => TYPE_NOHTML,
-	   		'note' => TYPE_NOHTML,
-	   		'poke' => TYPE_INT,
-	   		'user' => TYPE_INT
-		));
-		$poke = clean_number($vbulletin->GPC['poke'],999);
-        $user = clean_number($vbulletin->GPC['user'],9999);
-        $note = $db->escape_string($vbulletin->GPC['note']);
-        $mqry = $db->query_first("SELECT * FROM `poke_mon` WHERE monid = " . $poke);
-        $uqry = $db->query_first("SELECT username FROM `user` WHERE userid = " . $user);
-        
-        $error = false;
-        if($vbulletin->GPC['auth'] != 'Kaos') {
-            $error = true;
-        }
-        if($mqry['monname'] == '') {
-            $error = true;
-        }
-        if($uqry['username'] == '') {
-            $error = true;
-        }
-        
-        if(!$error) {
-            $shiny = (mt_rand(0,500) == 2) ? 1 : 0;
-            if($shiny == 1) {
-                $shiny1 = '[g=yellow]SHINY[/g] [highlight] ';
-                $shiny2 = ' [/highlight]';
-            }
-            $gender = (mt_rand(1,2) == 1) ? 'M' : 'F';
-            $a = '[url="member.php?' . $userid . '"]' . $username . '[/url] just gave ' . $uqry['username'] . ' a ' . $shiny1 . '[url="https://forums.novociv.org/pokemon.php?section=pokemon&do=view&pokemon=' . $poke . '"]' . $mqry['monname'] . '[/url]' . $shiny2 . '. 
-            	    
-        	[img]https://forums.novociv.org/pokemon/images/monimages/600px-' . str_pad($poke , 3 , "0" , STR_PAD_LEFT) . $mqry['monname'] . '.png[/img]
-        	
-        	Note: ' . $note;
-        	$vbulletin->db->query_write("INSERT INTO " . TABLE_PREFIX . "post 
-        		(threadid, username, userid, dateline, pagetext, visible) 
-        	VALUES 
-        		(1053765, 'Sexbot', 15, " . time() . ", '" . $vbulletin->db->escape_string($a) . "', 1)");
-        	$vbulletin->db->query_write("UPDATE " . TABLE_PREFIX . "user SET posts = posts+1 WHERE userid = 15");
-        	$vbulletin->db->query_write("UPDATE " . TABLE_PREFIX . "thread SET replycount = replycount+1, lastpost = " . time() . ", lastposter = 'Sexbot', lastposterid = 15 WHERE threadid = 1053765");
-            $vbulletin->db->query_write("INSERT INTO " . TABLE_PREFIX . "poke_indv 
-        			(monid, userid, shiny, catch_date, gender) 
-        		VALUES 
-        			(" . $poke . ", " . $user . ", " . $shiny . ", " . time() . ", '" . $gender . "')");
-        	// Setup Auto Private Message
-			$pmfromid = 15; // Sexbot
-			// Send Private Message
-			if ($pmfromid) {
-				require_once('./includes/class_dm.php'); 
-				require_once('./includes/class_dm_pm.php'); 
-				//pm system 
-				$pmSystem   =   new vB_DataManager_PM( $vbulletin ); 
-				//pm Titel / Text 
-				$pmtitle    =   'Pokemon Given to you by Admin'; 
-				$pmtext     = $a;
-				$pmfromname = 'Sexbot';           
-				$finduser = $db->fetch_array($db->query_read("SELECT * FROM " . TABLE_PREFIX . "user where userid='$user'"));
-				
-				$pmSystem->verify_message( $pmtext ); 
-				$pmSystem->verify_title( $pmtitle ); 
-				
-				//Set the fields 
-				$pmSystem->set('fromuserid', $pmfromid); 
-				$pmSystem->set('fromusername', $pmfromname); 
-				$pmSystem->set('title', $pmtitle); 
-				$pmSystem->set('message', $pmtext); 
-				$pmSystem->set('dateline', TIMENOW); 
-				$pmSystem->set('iconid', 4);
-					$pmSystem->set_recipients($finduser[username], $botpermissions);
-				
-					//Set Private Message 
-				if ( $pmSystem->pre_save() === false ) 
-				{ 
-				 if ($pmSystem->errors) { 
-				    return $pmSystem->errors; 
-				}  
-				} 
-				else 
-				{ 
-				 $pmSystem->save();                
-				}
-			}
-            echo '<div class=tcg_body>Success! ' . $mqry['monname'] . ' ' . $uqry['username'] . ' ' . $username . '</div>';
-        } else {
-            echo 'Error: ' . $mqry['monname'] . ' ' . $uqry['username'] . ' ' . $username;
-        }
-        
-        
-    } else if(isset($_GET['action']) && $_GET['action'] == 'givei') {
-        // ############ POST VARIABLES ############
-		//'p' means it's POST data
-		$vbulletin->input->clean_array_gpc('p', array(
-			'auth' => TYPE_NOHTML,
-	   		'note' => TYPE_NOHTML,
-	   		'poke' => TYPE_INT,
-	   		'amount' => TYPE_INT,
-	   		'user' => TYPE_INT
-		));
-		$poke = clean_number($vbulletin->GPC['poke'],999);
-        $amount = clean_number($vbulletin->GPC['amount'],999);
-        $user = clean_number($vbulletin->GPC['user'],9999);
-        $note = $db->escape_string($vbulletin->GPC['note']);
-        $mqry = $db->query_first("SELECT * FROM `poke_item_master` WHERE itemid = " . $poke);
-        $uqry = $db->query_first("SELECT username FROM `user` WHERE userid = " . $user);
-        
-        $error = false;
-        if($vbulletin->GPC['auth'] != 'Kaos') {
-            $error = true;
-        }
-        if($mqry['name'] == '' && $poke != 999) {
-            $error = true;
-        }
-        if($uqry['username'] == '') {
-            $error = true;
-        }
-        if($amount <= 0 || $amount > 25) {
-            $error = true;
-        }
-        
-        if(!$error && $poke != 999) {
-            $a = '[url="member.php?' . $userid . '"]' . $username . '[/url] just gave ' . $uqry['username'] . ' ' . $amount . ' ' . $mqry['name'] . '. 
-            	    
-        	Note: ' . $note;
-        	$vbulletin->db->query_write("INSERT INTO " . TABLE_PREFIX . "post 
-        		(threadid, username, userid, dateline, pagetext, visible) 
-        	VALUES 
-        		(1053765, 'Sexbot', 15, " . time() . ", '" . $vbulletin->db->escape_string($a) . "', 1)");
-        	$vbulletin->db->query_write("UPDATE " . TABLE_PREFIX . "user SET posts = posts+1 WHERE userid = 15");
-        	$vbulletin->db->query_write("UPDATE " . TABLE_PREFIX . "thread SET replycount = replycount+1, lastpost = " . time() . ", lastposter = 'Sexbot', lastposterid = 15 WHERE threadid = 1053765");
-            
-            for($i=0;$i<$amount;$i++) {
-			    $vals[] = '(' . $poke . ',' . $user . ',' . time() . ')';
-			}
-			$valstr = implode(',',$vals);
-			
-			$db->query_write("INSERT INTO 
-				`poke_items` 
-				(itemid, userid, purchase_date)
-			VALUES 
-				" . $valstr);
-			// Setup Auto Private Message
-			$pmfromid = 15; // Sexbot
-			// Send Private Message
-			if ($pmfromid) {
-				require_once('./includes/class_dm.php'); 
-				require_once('./includes/class_dm_pm.php'); 
-				//pm system 
-				$pmSystem   =   new vB_DataManager_PM( $vbulletin ); 
-				//pm Titel / Text 
-				$pmtitle    =   'Item Given to you by Admin'; 
-				$pmtext     = $a;
-				$pmfromname = 'Sexbot';           
-				$finduser = $db->fetch_array($db->query_read("SELECT * FROM " . TABLE_PREFIX . "user where userid='$user'"));
-				
-				$pmSystem->verify_message( $pmtext ); 
-				$pmSystem->verify_title( $pmtitle ); 
-				
-				//Set the fields 
-				$pmSystem->set('fromuserid', $pmfromid); 
-				$pmSystem->set('fromusername', $pmfromname); 
-				$pmSystem->set('title', $pmtitle); 
-				$pmSystem->set('message', $pmtext); 
-				$pmSystem->set('dateline', TIMENOW); 
-				$pmSystem->set('iconid', 4);
-					$pmSystem->set_recipients($finduser[username], $botpermissions);
-				
-					//Set Private Message 
-				if ( $pmSystem->pre_save() === false ) 
-				{ 
-				 if ($pmSystem->errors) { 
-				    return $pmSystem->errors; 
-				}  
-				} 
-				else 
-				{ 
-				 $pmSystem->save();                
-				}
-			}
-            echo '<div class=tcg_body>Success! ' . $amount . ' ' . $mqry['name'] . ' ' . $uqry['username'] . ' ' . $username . '</div>';
-        } else if(!$error && $poke == 999) {
-            $a = '[url="member.php?' . $userid . '"]' . $username . '[/url] just gave ' . $uqry['username'] . ' ' . $amount . ' pokeballs. 
-            	    
-        	Note: ' . $note;
-        	$vbulletin->db->query_write("INSERT INTO " . TABLE_PREFIX . "post 
-        		(threadid, username, userid, dateline, pagetext, visible) 
-        	VALUES 
-        		(1053765, 'Sexbot', 15, " . time() . ", '" . $vbulletin->db->escape_string($a) . "', 1)");
-        	$vbulletin->db->query_write("UPDATE " . TABLE_PREFIX . "user SET posts = posts+1 WHERE userid = 15");
-        	$vbulletin->db->query_write("UPDATE " . TABLE_PREFIX . "thread SET replycount = replycount+1, lastpost = " . time() . ", lastposter = 'Sexbot', lastposterid = 15 WHERE threadid = 1053765");
-            
-            $db->query_write("UPDATE 
-				`user` 
-			SET 
-				pokeballs = pokeballs+" . $amount . " 
-			WHERE userid = " . $user);
-            echo '<div class=tcg_body>Success! ' . $amount . ' ' . $mqry['name'] . ' ' . $uqry['username'] . ' ' . $username . '</div>';
-        } else {
-            echo 'Error: ' . $amount . ' ' . $mqry['name'] . ' ' . $uqry['username'] . ' ' . $username;
-        }
-        
-        
+        //'p' means it's POST data
+        $vbulletin->input->clean_array_gpc('p', array(
+            'spawn' => TYPE_NOHTML,
+            'forum' => TYPE_INT
+        ));
+        $forumid = clean_number($vbulletin->GPC['forum'], 9999);
+        $spawn = $vbulletin->GPC['spawn'];
+
+        #First file
+        $handler = fopen('pokemon/spawns/' . $forumid . '.txt', 'w+'); #this creates the file if it doesn't exist
+        $file1 = fwrite($handler, $spawn);
+        fclose($handler);
+
+        echo 'Success!<br><br>
+        <a href="pokemon.php?section=spawns&do=forum&forum=' . $forumid . '">
+        Go back to Edit</a><br><br>';
+
+    } else if(isset($_GET['action']) && $_GET['action'] == 'redirect') {
+        $vbulletin->input->clean_array_gpc('p', array(
+            'forum' => TYPE_INT
+        ));
+        $forumid = clean_number($vbulletin->GPC['forum'], 9999);
+        echo '<script type="text/javascript">
+        <!--
+        window.location = "https://forums.novociv.org/pokemon.php?section=spawns&do=forum&forum=' . $forumid . '"
+        //-->
+        </script>';
     } else {
         $forums = make_spawn_array();
+        $str .= '
+        <div class=tcg_body>
+            <form class=buy action="pokemon.php?section=spawns&do=admin&action=redirect" method="post">
+                ID of Forum:<br>
+                <input name="forum" type="text" maxlength="5"><br><br>
+            	<br><input type="submit" value="Make New Spawn Table" />
+        	</form>
+        </div>
+        ';
         $str .= '<div class=tcg_body>';
         
         $fqry = $db->query_read("SELECT `title`, `forumid` FROM `forum`");
