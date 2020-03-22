@@ -1,4 +1,48 @@
 <?php
+function randomFloat($min = 0, $max = 1) {
+    return $min + mt_rand() / mt_getrandmax() * ($max - $min);
+}
+function purebell($min,$max,$std_deviation,$step=1) {
+    $rand1 = (float)mt_rand()/(float)mt_getrandmax();
+    $rand2 = (float)mt_rand()/(float)mt_getrandmax();
+    $gaussian_number = sqrt(-2 * log($rand1)) * cos(2 * M_PI * $rand2);
+    $mean = ($max + $min) / 2;
+    $random_number = ($gaussian_number * $std_deviation) + $mean;
+    $random_number = round($random_number / $step) * $step;
+    if($random_number < $min || $random_number > $max) {
+        $random_number = purebell($min, $max,$std_deviation);
+    }
+    return $random_number;
+}
+function sendMessage($chatID, $messaggio, $token) {
+    //echo "sending message to " . $chatID . "\n";
+
+    $url = "https://api.telegram.org/bot" . $token . "/sendMessage?chat_id=" . $chatID;
+    $url = $url . "&text=" . urlencode($messaggio);
+    $ch = curl_init();
+    $optArray = array(
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true
+    );
+    curl_setopt_array($ch, $optArray);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return $result;
+}
+function sendAPI($threadid, $teamid) {
+    $url = "http://python-bot-2048942849.us-east-1.elb.amazonaws.com/api2?id1=" . $teamid . "&thread=" . $threadid;
+//    $url = "79.184.128.150:9999/api2?id1=" . $teamid . "&thread=" . $threadid;
+
+    $ch = curl_init();
+    $optArray = array(
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true
+    );
+    curl_setopt_array($ch, $optArray);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    return $result;
+}
 function clean_number($number, $max) {
 
   // This function cleans an integer for use in queries.

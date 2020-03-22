@@ -378,11 +378,65 @@ if(isset($_GET['do']) && $_GET['do'] == 'input') {
 
         $str .= '<div id="team_owner">' . $result1["username"] . '</div>';
 
+        $str .= '<div id="team_owner_id">' . $result1["userid"] . '</div>';
+
         $str .= '<br>Total Pokemon: ' . $counter . '<br>';
     } else {
         $str .= '<div id="team_dump">0</div>
         That team does not exist!<br>';
     }
+    echo $str;
+} else if(isset($_GET['do']) && $_GET['do'] == 'view_raw_r' && isset($_GET['lvl']) && $_GET['lvl'] <= 5000){
+    // ############ CLEAN VARIABLES ############
+    $vbulletin->input->clean_array_gpc('g', array(
+        'lvl' => TYPE_INT
+    ));
+    $lvl = clean_number($vbulletin->GPC['lvl'],5000);
+    $lvl++;
+    $std = $lvl/5;
+    $min = max(1,$lvl-($std*2));
+    $max = $lvl+$std*2;
+
+    // ############ MAIN CODE ############
+    for($i = 1; $i<=6; $i++){
+        $cards[] = mt_rand(1,386);
+    }
+
+    // ############ QUERY VARIABLES ############
+    $qry = "SELECT 
+        `monname`, 
+        `type`,
+        `monid`
+    FROM 
+        `poke_mon`
+    WHERE  
+        `monid` IN(" . implode(',',$cards) . ")";
+    $result = $db->query_read($qry);
+    while ($resultLoop = $db->fetch_array($result)) {
+        $poke_name[$resultLoop["monid"]] = $resultLoop["monname"];
+        $poke_type[$resultLoop["monid"]] = $resultLoop["type"];
+    }
+    $counter = 0;
+    $str .= '<div id="team_dump">';
+    for($i = 1; $i<=6; $i++) {
+        $monid = $cards[$counter];
+        $nick = $poke_name[$monid];
+        $level = purebell($min,$max,$std);
+        $friend = purebell(100,400,200);
+        $item_id = 0;
+        $type = $poke_type[$monid];
+        $counter++;
+
+        $str .= '<p>' . implode(",", array($monid, $nick, $level, $friend, $item_id, $type)) . '</p>';
+    }
+    $str .= '</div>';
+
+    $str .= '<div id="team_owner">Sexbot</div>';
+
+    $str .= '<div id="team_owner_id">15</div>';
+
+    $str .= '<br>Total Pokemon: ' . $counter . '<br>';
+
     echo $str;
 } else if(isset($_GET['do']) && $_GET['do'] == 'make1') {
 	$listuser = $userid;
