@@ -29,6 +29,16 @@ function sendMessage($chatID, $messaggio, $token) {
     curl_close($ch);
     return $result;
 }
+function queueAPI($threadid, $teamid, $type) {
+    $threadid = clean_number($threadid,9999999);
+    $teamid = clean_number($teamid,9999);
+    $type = clean_number($type,99);
+    global $db;
+    $db->query_first("INSERT INTO `poke_battle` 
+            (`battleid`, `threadid`, `poke_team`, `dateline`, `completed`, `type`) 
+        VALUES 
+            (NULL, '" . $threadid . "', '" . $teamid . "', '" . time() . "', '0', '" . $type . "');");
+}
 function sendAPI($threadid, $teamid) {
     $url = "http://python-bot-2048942849.us-east-1.elb.amazonaws.com/api2?id1=" . $teamid . "&thread=" . $threadid;
 //    $url = "79.184.128.150:9999/api2?id1=" . $teamid . "&thread=" . $threadid;

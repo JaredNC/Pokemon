@@ -94,6 +94,7 @@ function poke_item_roll($forumid) {
         7 => 1,
         8 => 10,
         9 => 10,
+        17 => 200,
         999 => 60
         );
     $f[584] = array(
@@ -129,7 +130,7 @@ function poke_item_roll($forumid) {
         );
 	$chances = array(
 		20 => 200,
-		583 => 20,
+		583 => 10,
 		584 => 20,
 		1 => 1
 		);

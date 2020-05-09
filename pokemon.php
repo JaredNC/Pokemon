@@ -159,6 +159,10 @@ if(isset($_GET['section']) && $_GET['section'] == 'home'){
 } else if(isset($_GET['section']) && ($_GET['section'] == 'spawns')){
 	require_once('./pokemon/spawns.php');
 
+//BATTLE PAGE
+} else if(isset($_GET['section']) && ($_GET['section'] == 'battle')){
+	require_once('./pokemon/battle.php');
+
 //LOAN PAGE
 } else if(isset($_GET['section']) && ($_GET['section'] == 'loan')){
 	require_once('./pokemon/loan.php');
