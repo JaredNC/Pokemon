@@ -392,10 +392,10 @@ if(isset($_GET['do']) && $_GET['do'] == 'input') {
         'lvl' => TYPE_INT
     ));
     $lvl = clean_number($vbulletin->GPC['lvl'],5000);
-    $lvl++;
+    $lvl--;
     $std = $lvl/5;
     $min = max(1,$lvl-($std*2));
-    $max = $lvl+$std*2;
+    $max = $lvl+$std;
 
     // ############ MAIN CODE ############
     for($i = 1; $i<=6; $i++){

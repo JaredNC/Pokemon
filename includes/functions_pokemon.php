@@ -94,7 +94,6 @@ function poke_item_roll($forumid) {
         7 => 1,
         8 => 10,
         9 => 10,
-        17 => 200,
         999 => 60
         );
     $f[584] = array(
@@ -254,7 +253,10 @@ function poke_gacha($machine,$userid,$username) {
 	$probs = weighted_prob($machine);
     $roll = $probs[mt_rand(1,count($probs))];
     $poke = grab_poke_one($roll);
-    $shiny = (mt_rand(0,500) == 2) ? 1 : 0;
+    $shiny_rate = shiny_rate($userid);
+//    $shiny_test = shiny_rate($userid);
+//    $shiny_rate = 500;
+    $shiny = (mt_rand(0,$shiny_rate) == 2) ? true : false;
     if($shiny == 1) {
         $shiny1 = '[g=yellow]SHINY[/g] [highlight] ';
         $shiny2 = ' [/highlight]';
@@ -276,5 +278,33 @@ function poke_gacha($machine,$userid,$username) {
 			(" . $roll . ", " . $userid . ", " . $shiny . ", " . time() . ", '" . $gender . "')");
 
     return $roll . ',' . $shiny;
+}
+function shiny_rate($userid) {
+    global $vbulletin;
+    $exists = $vbulletin->db->query_first("SELECT 
+    EXISTS(SELECT 1 FROM poke_indv 
+            WHERE shiny = 1 AND userid = 1 AND catch_date > " . (time() - 60*60*24*3) . ") AS 'Exists'");
+    if($exists['Exists'] == false) {
+        $result = $vbulletin->db->query_first("SELECT 
+            SUM(LENGTH(`pagetext`))/COUNT(0) AS 'avg_len', 
+            COUNT(DISTINCT `threadid`) AS 'num_threads' 
+        FROM 
+            `post` 
+        WHERE 
+            `userid` = " . $userid . " AND `dateline` > " . (time() - 60*60*24*3));
+        $avg_len = $result["avg_len"];
+        $num_threads = $result["num_threads"];
+
+        if($num_threads >= 5){
+            $len_bonus = MAX(0,200-(MAX(0,$avg_len-100)));
+            $thread_bonus = MAX(0,200-13*(MAX(0,$num_threads-5)));
+            $rate = 100 + $len_bonus + $thread_bonus;
+            return $rate;
+        } else {
+            return 500;
+        }
+    } else {
+        return 500;
+    }
 }
 ?>

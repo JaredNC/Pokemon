@@ -29,6 +29,13 @@ ORDER BY `dateline`  ASC";
 
 $result = $vbulletin->db->query_read($qry);
 while ($resultLoop = $vbulletin->db->fetch_array($result)) {
+    $user_qry = "UPDATE
+        `poke_battle`
+    SET
+        completed = 1
+    WHERE
+        battleid = " . $resultLoop["battleid"];
+    $vbulletin->db->query_write($user_qry) or die("user died");
     if($resultLoop["type"] == 0) {
         $url = "http://python-bot-2048942849.us-east-1.elb.amazonaws.com/api2?id1="
             . $resultLoop["poke_team"] . "&thread=" . $resultLoop["threadid"];
@@ -45,13 +52,7 @@ while ($resultLoop = $vbulletin->db->fetch_array($result)) {
     );
     curl_setopt_array($ch, $optArray);
     curl_exec($ch);
-    $user_qry = "UPDATE
-        `poke_battle`
-    SET
-        completed = 1
-    WHERE
-        battleid = " . $resultLoop["battleid"];
-    $vbulletin->db->query_write($user_qry) or die("user died");
+
 }
 
 log_cron_action('', $nextitem, 1);
