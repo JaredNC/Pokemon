@@ -51,6 +51,68 @@ if(isset($_GET['do']) && $_GET['do'] == 'battle') {
 
     $db->query_write($out_qry);
 
+} else if(isset($_GET['do']) && $_GET['do'] == 'gym') {
+    // ############ POST VARIABLES ############
+    //'p' means it's POST data
+    $vbulletin->input->clean_array_gpc('p', array(
+        'userid' => TYPE_INT,
+        'gen' => TYPE_INT,
+        'badge' => TYPE_INT,
+        'thread' => TYPE_INT
+    ));
+    $id_user = clean_number($vbulletin->GPC['userid'], 9999);
+    $gen = clean_number($vbulletin->GPC['gen'], 99);
+    $badge = clean_number($vbulletin->GPC['badge'], 99);
+    $threadid = clean_number($vbulletin->GPC['thread'], 99999999);
+
+    if($badge == 1) {
+        $insert = "INSERT INTO `poke_gym` (`entryid`, `userid`, `badgeid`, `genid`) 
+            VALUES (NULL, '" . $id_user . "', '1', '" . $gen . "')";
+        $db->query_write($insert);
+    } else {
+        $update = "UPDATE `poke_gym` SET `badgeid` = '" . $badge . "' 
+            WHERE `userid` = " . $id_user . " AND `genid` = " . $gen;
+        $db->query_write($update);
+    }
+
+    $badges = array(
+        1 => array(
+            1 => "Boulder",
+            2 => "Cascade",
+            3 => "Thunder",
+            4 => "Rainbow",
+            5 => "Soul",
+            6 => "Marsh",
+            7 => "Volcano",
+            8 => "Earth"
+        ),
+        2 => array(
+            1 => "Zephyr",
+            2 => "Hive",
+            3 => "Plain",
+            4 => "Fog",
+            5 => "Storm",
+            6 => "Mineral",
+            7 => "Glacier",
+            8 => "Rising"
+        ),
+        3 => array(
+            1 => "Stone",
+            2 => "Knuckle",
+            3 => "Dynamo",
+            4 => "Heat",
+            5 => "Balance",
+            6 => "Feather",
+            7 => "Mind",
+            8 => "Rain"
+        )
+    );
+    $leader = 1758 + $gen*8 + $badge;
+
+    $output = "You have defeated me! I award you the " . $badges[$gen][$badge] . " Badge!";
+    $vbulletin->db->query_write("INSERT INTO " . TABLE_PREFIX . "post (threadid, username, userid, dateline, pagetext, visible) VALUES (" . $threadid . ", 'Gym Leader', " . $leader . ", " . time() . ", '" . $output . "', 1)");
+    $vbulletin->db->query_write("UPDATE " . TABLE_PREFIX . "thread SET lastpostid = LAST_INSERT_ID(), lastpost = " . time() . ", replycount = replycount+1, lastposter = 'Gym Leader', lastposterid = " . $leader . " WHERE threadid = " . $threadid);
+    $vbulletin->db->query_write("UPDATE " . TABLE_PREFIX . "user SET posts = posts+1 WHERE userid = " . $leader);
 }
 
 } else {

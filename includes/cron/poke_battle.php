@@ -15,7 +15,7 @@ if (!is_object($vbulletin->db))
 
 require_once(DIR . '/includes/functions_custom.php');
 
-// ################################# HILL REWARDS #####################################
+// ################################# QUEUED BATTLES #####################################
 $qry = "SELECT 
     `battleid`,
     `threadid`,
@@ -43,6 +43,10 @@ while ($resultLoop = $vbulletin->db->fetch_array($result)) {
     } elseif($resultLoop["type"] == 1){
         $url = "http://python-bot-2048942849.us-east-1.elb.amazonaws.com/api3?id1="
             . $resultLoop["poke_team"] . "&thread=" . $resultLoop["threadid"];
+    } elseif($resultLoop["type"] > 1){
+        $url = "http://python-bot-2048942849.us-east-1.elb.amazonaws.com/api4?id1="
+            . $resultLoop["poke_team"] . "&thread=" . $resultLoop["threadid"] .
+            "&type=" . $resultLoop["type"];
     }
 
     $ch = curl_init();

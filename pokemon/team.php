@@ -438,6 +438,126 @@ if(isset($_GET['do']) && $_GET['do'] == 'input') {
     $str .= '<br>Total Pokemon: ' . $counter . '<br>';
 
     echo $str;
+} else if(isset($_GET['do']) && $_GET['do'] == 'view_raw_g' && isset($_GET['lvl']) && $_GET['lvl'] <= 5000){
+    // ############ CLEAN VARIABLES ############
+    $vbulletin->input->clean_array_gpc('g', array(
+        'lvl' => TYPE_INT,
+        'gen' => TYPE_INT,
+        'gym' => TYPE_INT
+    ));
+    $lvl = clean_number($vbulletin->GPC['lvl'],5000);
+    $gen = clean_number($vbulletin->GPC['gen'],99);
+    $gym = clean_number($vbulletin->GPC['gym'],99);
+
+    $gym_teams = array(
+        1 => array(
+            1 => 609,
+            2 => 610,
+            3 => 611,
+            4 => 612,
+            5 => 613,
+            6 => 614,
+            7 => 615,
+            8 => 616
+        ),
+        2 => array(
+            1 => 617,
+            2 => 618,
+            3 => 619,
+            4 => 620,
+            5 => 621,
+            6 => 622,
+            7 => 623,
+            8 => 624
+        ),
+        3 => array(
+            1 => 625,
+            2 => 626,
+            3 => 627,
+            4 => 628,
+            5 => 629,
+            6 => 630,
+            7 => 631,
+            8 => 632
+        )
+    );
+
+    $deck = $gym_teams[$gen][$gym];
+
+    // ############ CHECK IF TRADE EXISTS ############
+    if($deck > 0){
+        $exists = $db->query_first("SELECT EXISTS(SELECT 1 FROM poke_deck WHERE deckid = $deck) AS 'Exists'");
+    } else {
+        $exists = false;
+    }
+
+    // ############ MAIN CODE ############
+    if($exists['Exists'] == true) {
+        $result1 = $db->query_first("SELECT
+			`poke_deck`.`decklist` AS 'cardlist',
+			`poke_deck`.`name` AS 'deckname',
+			`poke_deck`.`userid` AS 'userid',
+			`poke_deck`.`rental` AS 'rental',
+			`user`.`username` AS 'username'
+		FROM 
+			`poke_deck`
+			INNER JOIN (`user`)
+				ON (`poke_deck`.`userid` = `user`.`userid`)
+		WHERE
+			`poke_deck`.`deckid` = $deck");
+
+        if($result1["userid"] == 15 && $result1["rental"] != 1) {
+            echo '<div id="team_dump">0</div>
+                That team has been deleted.</div>';
+            exit($footer);
+        }
+        $cards = explode(',',$result1["cardlist"]);
+        $qrytime = time();
+        $listuser = $userid;
+
+        // ############ QUERY VARIABLES ############
+        $qry = "SELECT 
+			`poke_indv`.`indvid` AS 'c_id', 
+			`poke_indv`.`nick` AS 'c_nick', 
+			`poke_indv`.`level` AS 'c_level', 
+			`poke_mon`.`monname` AS 'c_name', 
+			`poke_mon`.`type` AS 'c_type',
+			`poke_indv`.`friend` AS 'c_friend',
+			`poke_indv`.`monid` AS 'c_masterid'
+		FROM 
+			`poke_indv`
+			LEFT JOIN (`poke_mon`)
+				ON (`poke_indv`.`monid` = `poke_mon`.`monid`)
+		WHERE  
+			`poke_indv`.`indvid` IN(" . $result1["cardlist"] . ")
+		ORDER BY `poke_indv`.`level` DESC";
+        $result = $db->query_read($qry);
+        //echo "<br>Query Time Elapsed: ".(microtime(true) - $qrytime)."s<br>";
+        $counter = 0;
+        $str .= '<div id="team_dump">';
+        while ($resultLoop = $db->fetch_array($result)) {
+            $counter++;
+            $monid = $resultLoop["c_masterid"];
+            $nick = ($resultLoop["c_nick"] == '') ? $resultLoop["c_name"] : $resultLoop["c_nick"];
+            $level = $resultLoop["c_level"] + $lvl;
+            $friend = 200;
+            $item_id = 0;
+            $type = $resultLoop["c_type"];
+
+            $str .= '<p>' . implode(",",array($monid,$nick,$level,$friend,$item_id,$type)) . '</p>';
+        }
+        $str .= '</div>';
+
+        $str .= '<div id="team_owner">' . $result1["username"] . '</div>';
+
+        $str .= '<div id="team_owner_id">' . $result1["userid"] . '</div>';
+
+        $str .= '<br>Total Pokemon: ' . $counter . '<br>';
+    } else {
+        $str .= '<div id="team_dump">0</div>
+        That team does not exist!<br>';
+    }
+    echo $str;
 } else if(isset($_GET['do']) && $_GET['do'] == 'make1') {
 	$listuser = $userid;
 	
